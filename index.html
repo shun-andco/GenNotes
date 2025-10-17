@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>音階ランダム表示アプリ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background: #f5f5f5;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    #note-display {
+      font-size: 4rem;
+      margin: 20px;
+    }
+
+    .mode-buttons,
+    .control-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 1rem;
+      white-space: nowrap;
+      min-width: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>音階ランダム表示アプリ</h1>
+
+  <label for="interval">間隔（秒）:</label>
+  <select id="interval">
+    <script>
+      for (let i = 1; i <= 10; i++) {
+        document.write(`<option value="${i}">${i}</option>`);
+      }
+    </script>
+  </select>
+  <br /><br />
+
+  <label for="volume">音量:</label>
+  <input type="range" id="volume" min="0" max="100" value="100" />
+  <label><input type="checkbox" id="mute" /> ミュート</label>
+
+  <div class="mode-buttons">
+    <button data-string="6">6弦: OFF</button>
+    <button data-string="5">5弦: OFF</button>
+    <button data-string="4">4弦: OFF</button>
+    <button data-string="3">3弦: OFF</button>
+    <button data-string="2">2弦: OFF</button>
+    <button data-string="1">1弦: OFF</button>
+  </div>
+
+  <div class="control-buttons">
+    <button id="start-button">スタート</button>
+    <button id="stop-button">ストップ</button>
+  </div>  <div id="note-display">♪</div>
+
+  <script>
+    const stringNotes = {
+      6: [
+        'E2', 'F2', 'F#2', 'Gb2', 'G2', 'G#2', 'Ab2', 'A2', 'A#2', 'Bb2', 'B2',
+        'C3', 'C#3', 'Db3', 'D3', 'D#3', 'Eb3'
+      ],
+      5: [
+        'A2', 'A#2', 'Bb2', 'B2', 'C3', 'C#3', 'Db3', 'D3', 'D#3', 'Eb3',
+        'E3', 'F3', 'F#3', 'Gb3', 'G3', 'G#3', 'Ab3'
+      ],
+      4: [
+        'D3', 'D#3', 'Eb3', 'E3', 'F3', 'F#3', 'Gb3', 'G3', 'G#3', 'Ab3',
+        'A3', 'A#3', 'Bb3', 'B3', 'C4', 'C#4', 'Db4'
+      ],
+      3: [
+        'G3', 'G#3', 'Ab3', 'A3', 'A#3', 'Bb3', 'B3', 'C4', 'C#4', 'Db4',
+        'D4', 'D#4', 'Eb4', 'E4', 'F4', 'F#4', 'Gb4'
+      ],
+      2: [
+        'B3', 'C4', 'C#4', 'Db4', 'D4', 'D#4', 'Eb4', 'E4', 'F4', 'F#4',
+        'Gb4', 'G4', 'G#4', 'Ab4', 'A4', 'A#4', 'Bb4'
+      ],
+      1: [
+        'E4', 'F4', 'F#4', 'Gb4', 'G4', 'G#4', 'Ab4', 'A4', 'A#4', 'Bb4',
+        'B4', 'C5', 'C#5', 'Db5', 'D5', 'D#5', 'Eb5'
+      ]
+    };
+
+
+    const noteFrequencies = {
+      // 6弦〜1弦の全ての音を定義
+      'E2': 82.41, 'F2': 87.31, 'F#2': 92.50, 'Gb2': 92.50, 'G2': 98.00, 'G#2': 103.83, 'Ab2': 103.83, 'A2': 110.00,
+      'A#2': 116.54, 'Bb2': 116.54, 'B2': 123.47, 'C3': 130.81, 'C#3': 138.59, 'Db3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'Eb3': 155.56,
+
+      'E3': 164.81, 'F3': 174.61, 'F#3': 185.00, 'Gb3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'Ab3': 207.65, 'A3': 220.00,
+      'A#3': 233.08, 'Bb3': 233.08, 'B3': 246.94, 'C4': 261.63, 'C#4': 277.18, 'Db4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'Eb4': 311.13,
+
+      'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'Gb4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'Ab4': 415.30, 'A4': 440.00,
+      'A#4': 466.16, 'Bb4': 466.16, 'B4': 493.88, 'C5': 523.25, 'C#5': 554.37, 'Db5': 554.37, 'D5': 587.33, 'D#5': 622.25, 'Eb5': 622.25,
+    };
+
+    let intervalId = null;
+    let previousNote = null;
+    let isRunning = false;
+    let currentVolume = 1.0;
+    let isMuted = false;
+    const activeStrings = new Set(); // 有効な弦番号（例：6, 5）
+
+    const playNote = (noteName, duration) => {
+      const freq = noteFrequencies[noteName];
+      if (!freq || isMuted) return;
+
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      const real = new Float32Array([0, 1.0, 0.5, 0.2, 0.1, 0.05]); // 実部（cos成分）
+      const imag = new Float32Array(real.length); // 虚部（sin成分は0でOK）
+      const wave = audioCtx.createPeriodicWave(real, imag);
+      oscillator.setPeriodicWave(wave);
+
+      oscillator.type = 'square'; // sine から変更
+      oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+      const fadeTime = 0.05;
+      const holdTime = Math.max(0, duration * 0.7 - 2 * fadeTime);
+
+      const isLowFreq = freq < 150; // E2〜G2あたり
+      const volumeGain = currentVolume * (isLowFreq ? 0.4 : 0.2); // 低音強めに
+
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(volumeGain, now + fadeTime);
+      gainNode.gain.setValueAtTime(volumeGain, now + fadeTime + holdTime);
+      gainNode.gain.linearRampToValueAtTime(0, now + fadeTime + holdTime + fadeTime);
+
+      oscillator.start(now);
+      oscillator.stop(now + duration + 0.1);
+
+      console.log(`再生中: ${noteName}, 周波数: ${freq}Hz`);
+    };
+    
+    const defaultNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
+
+    const showNote = () => {
+      const duration = parseInt(document.getElementById('interval').value);
+
+      const allNotes = activeStrings.size > 0
+        ? Array.from(activeStrings).flatMap(strNum => stringNotes[strNum] || [])
+        : defaultNotes;
+
+      if (allNotes.length === 0) {
+        document.getElementById('note-display').textContent = '♪';
+        return;
+      }
+
+      let newNote;
+      do {
+        newNote = allNotes[Math.floor(Math.random() * allNotes.length)];
+      } while (newNote === previousNote);
+      previousNote = newNote;
+
+      // 表示はそのまま
+      document.getElementById('note-display').textContent = newNote;
+
+      // 再生音には "3" をつけて play
+      const noteToPlay = (activeStrings.size === 0) ? newNote + '3' : newNote;
+      playNote(noteToPlay, duration);
+    };
+    const startInterval = () => {
+      if (intervalId) clearInterval(intervalId);
+      const seconds = parseInt(document.getElementById('interval').value);
+      intervalId = setInterval(showNote, seconds * 1000);
+    };
+
+    document.getElementById('start-button').addEventListener('click', () => {
+      if (intervalId) clearInterval(intervalId);
+      showNote();
+      startInterval();
+      isRunning = true;
+    });
+
+    document.getElementById('stop-button').addEventListener('click', () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+        isRunning = false;
+      }
+    });
+
+    document.getElementById('interval').addEventListener('change', () => {
+      if (isRunning) startInterval();
+    });
+
+    document.getElementById('volume').addEventListener('input', (e) => {
+      currentVolume = parseInt(e.target.value) / 100;
+    });
+
+    document.getElementById('mute').addEventListener('change', (e) => {
+      isMuted = e.target.checked;
+    });
+
+    document.querySelectorAll('button[data-string]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const strNum = parseInt(btn.dataset.string);
+
+        // 他のすべてのボタンを OFF に
+        document.querySelectorAll('button[data-string]').forEach(otherBtn => {
+          const otherStrNum = parseInt(otherBtn.dataset.string);
+          if (otherStrNum !== strNum) {
+            activeStrings.delete(otherStrNum);
+            otherBtn.textContent = `${otherStrNum}弦: OFF`;
+          }
+        });
+
+        // 自分が ON だったら OFF に、OFF だったら ON に
+        if (activeStrings.has(strNum)) {
+          activeStrings.delete(strNum);
+          btn.textContent = `${strNum}弦: OFF`;
+        } else {
+          activeStrings.add(strNum);
+          btn.textContent = `${strNum}弦: ON`;
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
